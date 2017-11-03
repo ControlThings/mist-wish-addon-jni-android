@@ -38,7 +38,7 @@ static jobject wishAppBridgeInstance;
 * Method:    register
 * Signature: (Lfi/ct/mist/WishAppBridge;)V
 */
-JNIEXPORT jobject JNICALL Java_mistNodeApi_WishBridgeJni_register(JNIEnv *env, jobject jthis, jobject wishAppBridge) {
+JNIEXPORT jobject JNICALL Java_addon_WishBridgeJni_register(JNIEnv *env, jobject jthis, jobject wishAppBridge) {
     /* Register a refence to the JVM */
     if ((*env)->GetJavaVM(env,&javaVM) < 0) {
         android_wish_printf("Failed to GetJavaVM");
@@ -128,7 +128,7 @@ void send_app_to_core(uint8_t *wsid, const uint8_t *data, size_t len) {
     (*my_env)->DeleteLocalRef(my_env, java_wsid);
 }
 
-JNIEXPORT void JNICALL Java_mistNodeApi_WishBridgeJni_receive_1core_1to_1app(JNIEnv *env, jobject jthis, jbyteArray java_data) {
+JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *env, jobject jthis, jbyteArray java_data) {
     android_wish_printf("Receive core to app");
 
     if (java_data == NULL) {
@@ -160,7 +160,7 @@ JNIEXPORT void JNICALL Java_mistNodeApi_WishBridgeJni_receive_1core_1to_1app(JNI
  * Method:    connected
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_mistNodeApi_WishBridgeJni_connected
+JNIEXPORT void JNICALL Java_addon_WishBridgeJni_connected
   (JNIEnv *env, jobject jthis, jboolean connected) {
     /* Call wish_app_login on our app */
     wish_app_connected(get_mist_node_app(), connected);
