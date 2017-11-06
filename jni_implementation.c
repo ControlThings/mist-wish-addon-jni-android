@@ -14,7 +14,7 @@
 To re-create JNI interface:
 
  To Renew header file using javah
-    jjavah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o mist_node_api_jni.h node.MistNode
+    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o mist_node_api_jni.h node.MistNode
 
  To see a Java object's method signatures, use:
     javap -s -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar node.MistNode
