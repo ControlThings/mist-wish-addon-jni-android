@@ -34,9 +34,9 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request
 /*
  * Class:     wishApp_WishApp
  * Method:    requestCancel
- * Signature: (I)I
+ * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_wishApp_WishApp_requestCancel
+JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel
   (JNIEnv *, jobject, jint);
 
 #ifdef __cplusplus

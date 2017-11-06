@@ -106,9 +106,9 @@ JNIEXPORT jint JNICALL Java_mistNode_MistNode_request
 /*
  * Class:     mistNode_MistNode
  * Method:    requestCancel
- * Signature: (I)I
+ * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_mistNode_MistNode_requestCancel
+JNIEXPORT void JNICALL Java_mistNode_MistNode_requestCancel
   (JNIEnv *, jobject, jint);
 
 #ifdef __cplusplus

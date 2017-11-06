@@ -14,13 +14,19 @@
 To re-create JNI interface:
 
  To Renew header file using javah
-    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o mist_node_api_jni.h node.MistNode
+
+    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o mist_node_jni.h mistNode.MistNode
+
+    ...and...
+
+    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o wish_app_jni.h wishApp.WishApp
 
  To see a Java object's method signatures, use:
-    javap -s -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar node.MistNode
+    javap -s -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar mistNode.MistNode
 
 */
-#include "mist_node_api_jni.h"
+#include "mist_node_jni.h"
+#include "wish_app_jni.h"
 #include "jni_utils.h"
 #include "mist_node_api_helper.h"
 #include "wish_fs.h"
@@ -297,7 +303,7 @@ static enum mist_error hw_invoke(mist_ep *ep, wish_protocol_peer_t* peer, int re
  * Method:    startMistApp
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_startMistApp(JNIEnv *env, jobject java_this, jstring java_appName) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_startMistApp(JNIEnv *env, jobject java_this, jstring java_appName) {
 
     android_wish_printf("in startMistApp");
     /* Register a refence to the JVM */
@@ -350,7 +356,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_startMistApp(JNIEnv *env, jobject java
  * Method:    stopMistApp
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_stopMistApp(JNIEnv *env, jobject java_this) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_stopMistApp(JNIEnv *env, jobject java_this) {
     android_wish_printf("stopMistApp not implemented!");
 }
 
@@ -360,7 +366,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_stopMistApp(JNIEnv *env, jobject java_
  * Method:    addEndpoint
  * Signature: (Lmist/node/Endpoint;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_addEndpoint(JNIEnv *env, jobject java_this, jobject java_Endpoint) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_addEndpoint(JNIEnv *env, jobject java_this, jobject java_Endpoint) {
     android_wish_printf("in addEndpoint");
 
     /* Get the class corresponding to java_Endpoint instance */
@@ -457,7 +463,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_addEndpoint(JNIEnv *env, jobject java_
  * Method:    removeEndpoint
  * Signature: (Lmist/node/Endpoint;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_removeEndpoint(JNIEnv *env, jobject java_this, jobject java_endpoint) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_removeEndpoint(JNIEnv *env, jobject java_this, jobject java_endpoint) {
 
 }
 
@@ -466,7 +472,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_removeEndpoint(JNIEnv *env, jobject ja
  * Method:    readResponse
  * Signature: (Ljava/lang/String;I[B)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_readResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jbyteArray java_data) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_readResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jbyteArray java_data) {
     android_wish_printf("in readResponse");
 
     if (java_data == NULL) {
@@ -501,7 +507,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_readResponse(JNIEnv *env, jobject java
  * Method:    readError
  * Signature: (Ljava/lang/String;IILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_readError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_readError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
     android_wish_printf("in readError");
 
     char *epid_str =  (char*) (*env)->GetStringUTFChars(env, java_epid, NULL);
@@ -518,7 +524,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_readError(JNIEnv *env, jobject java_th
  * Method:    writeResponse
  * Signature: (Ljava/lang/String;I)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_writeResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_writeResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id) {
     android_wish_printf("in writeResponse");
     if (java_epid == NULL) {
         android_wish_printf("in writeResponse: java_epid is NULL");
@@ -536,7 +542,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_writeResponse(JNIEnv *env, jobject jav
  * Method:    writeError
  * Signature: (Ljava/lang/String;IILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_writeError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_writeError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
     android_wish_printf("in writeError");
     if (java_epid == NULL) {
         android_wish_printf("in writeError: java_epid is NULL");
@@ -556,7 +562,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_writeError(JNIEnv *env, jobject java_t
  * Method:    invokeResponse
  * Signature: (Ljava/lang/String;I[B)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_invokeResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jbyteArray java_data) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_invokeResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jbyteArray java_data) {
     android_wish_printf("in invokeResponse");
 
     if (java_data == NULL) {
@@ -597,7 +603,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_invokeResponse(JNIEnv *env, jobject ja
  * Method:    invokeError
  * Signature: (Ljava/lang/String;IILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_invokeError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_invokeError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
     android_wish_printf("in invokeError");
     if (java_epid == NULL) {
         android_wish_printf("in invokeError: java_epid is NULL");
@@ -617,7 +623,7 @@ JNIEXPORT void JNICALL Java_node_MistNode_invokeError(JNIEnv *env, jobject java_
  * Method:    changed
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_node_MistNode_changed(JNIEnv *env, jobject java_this, jstring java_epid) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_changed(JNIEnv *env, jobject java_this, jstring java_epid) {
     android_wish_printf("in changed");
     if (java_epid == NULL) {
         android_wish_printf("in changed: java_epid is NULL");
@@ -988,8 +994,8 @@ static bool save_request(JNIEnv *env, struct callback_list_elem **cb_list_head, 
  * Method:    request
  * Signature: ([B[BLmist/node/MistNode/RequestCb;)I
  */
-JNIEXPORT jint JNICALL Java_node_MistNode_request(JNIEnv *env, jobject java_this, jbyteArray java_peer, jbyteArray java_req, jobject callback_obj) {
-    android_wish_printf("in request");
+JNIEXPORT jint JNICALL Java_mistNode_MistNode_request(JNIEnv *env, jobject java_this, jbyteArray java_peer, jbyteArray java_req, jobject callback_obj) {
+    android_wish_printf("in MistNode request");
     /* Unmarshall the java_peer and java_req to normal arrays of bytes */
     size_t peer_bson_len = (*env)->GetArrayLength(env, java_peer);
     uint8_t *peer_bson = (uint8_t *) calloc(peer_bson_len, 1);
@@ -1032,11 +1038,26 @@ JNIEXPORT jint JNICALL Java_node_MistNode_request(JNIEnv *env, jobject java_this
 }
 
 /*
+ * Class:     mistNode_MistNode
+ * Method:    requestCancel
+ * Signature: (I)I
+ */
+JNIEXPORT void JNICALL Java_mistNode_MistNode_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
+    android_wish_printf("in MistNode requestCancel");
+
+    rpc_client_req *req = rpc_client_find_req(&model->mist_app->protocol.rpc_client, request_id);
+
+    mist_app_cancel(model->mist_app, req);
+}
+
+
+/*
  * Class:     mist_node_MistNode
  * Method:    wishRequest
  * Signature: ([BLmist/node/MistNode/RequestCb;)I
  */
-JNIEXPORT jint JNICALL Java_node_MistNode_wishRequest(JNIEnv *env, jobject java_this, jbyteArray java_req, jobject callback_obj) {
+JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_this, jbyteArray java_req, jobject callback_obj) {
+    android_wish_printf("in WishApp request");
     size_t req_bson_len = (*env)->GetArrayLength(env, java_req);
     uint8_t *req_bson = (uint8_t *) calloc(req_bson_len, 1);
     if (req_bson == NULL) {
@@ -1055,4 +1076,17 @@ JNIEXPORT jint JNICALL Java_node_MistNode_wishRequest(JNIEnv *env, jobject java_
     free(req_bson);
 
     return request_id;
+}
+
+/*
+ * Class:     wishApp_WishApp
+ * Method:    requestCancel
+ * Signature: (I)I
+ */
+JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
+    android_wish_printf("in WishAode requestCancel");
+
+    rpc_client_req *req = rpc_client_find_req(&app->rpc_client, request_id);
+
+    wish_app_cancel(app, req);
 }
