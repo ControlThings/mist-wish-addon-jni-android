@@ -177,12 +177,13 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *e
  */
 JNIEXPORT void JNICALL Java_addon_WishBridgeJni_connected
   (JNIEnv *env, jobject jthis, jboolean connected) {
-
+    android_wish_printf("WishBridgeJni_connected: %i", connected);
     monitor_enter();
 
+    bridge_connected = connected;
     /* Call wish_app_login on our app */
     wish_app_connected(get_wish_app(), connected);
-    bridge_connected = connected;
+
 
     monitor_exit();
 }

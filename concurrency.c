@@ -10,6 +10,7 @@ static jobject monitor_instance = NULL;
 static JavaVM *java_vm = NULL;
 
 void monitor_init(JavaVM *vm, jobject monitor_obj_global_ref) {
+    android_wish_printf("monitor_init");
     monitor_instance = monitor_obj_global_ref;
     java_vm = vm;
 }
