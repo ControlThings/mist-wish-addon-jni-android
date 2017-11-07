@@ -40,13 +40,19 @@ static mist_api_t* mist_api;
 JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jthis, jstring java_appName, jobject java_mistNode) {
     android_wish_printf("in startMistApi!");
 
-    monitor_enter();
-
-    /* Register a refence to the JVM */
     if ((*env)->GetJavaVM(env,&javaVM) < 0) {
         android_wish_printf("Failed to GetJavaVM");
         return;
     }
+    setJavaVM(javaVM);
+
+    jobject node_global_ref = (*env)->NewGlobalRef(env, java_mistNode);
+    monitor_init(javaVM, node_global_ref);
+
+    monitor_enter();
+
+    /* Register a refence to the JVM */
+
 
 
     char *name_str =  (char*) (*env)->GetStringUTFChars(env, java_appName, NULL);
@@ -58,9 +64,9 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jt
 
     rawApiInstance = (*env)->NewGlobalRef(env, jthis);
 
-    jobject node_global_ref = (*env)->NewGlobalRef(env, java_mistNode);
+
     setMistNodeInstance(node_global_ref);
-    monitor_init(javaVM, node_global_ref);
+
 
     monitor_exit();
     /* The app will login to core when the Bridge connects, this happens via the wish_app_connected(wish_app_t *app, bool connected) function in fi_ct_mist_mistlib_WishBridgeJni:connected */
@@ -185,6 +191,7 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
 
         bson_type type = bson_iterator_type(&it);
 
+#if 0
         switch(type) {
         case BSON_BOOL:
             bson_append_bool(&bs, "data", bson_iterator_bool(&it));
@@ -207,6 +214,16 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
         default:
             WISHDEBUG(LOG_CRITICAL, "Unsupported bson type %i of data element", type);
         }
+#else
+        if (type == BSON_EOO) {
+            WISHDEBUG(LOG_CRITICAL, "Unexpected end of BSON, no data");
+            /* FIXME activate err callback here */
+            return;
+        }
+        else {
+            bson_append_element(&bs, "data", &it);
+        }
+#endif
         bson_finish(&bs);
 
         uint8_t *data_doc = (uint8_t *) bson_data(&bs);

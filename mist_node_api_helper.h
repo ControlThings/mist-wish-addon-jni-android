@@ -13,6 +13,7 @@ wish_app_t *get_wish_app(void);
 mist_app_t *get_mist_app(void);
 
 JavaVM *getJavaVM(void);
+void setJavaVM(JavaVM *);
 
 jobject getMistNodeApiInstance();
 

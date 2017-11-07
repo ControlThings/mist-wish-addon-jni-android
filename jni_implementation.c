@@ -705,6 +705,10 @@ JavaVM *getJavaVM(void) {
     return javaVM;
 }
 
+void setJavaVM(JavaVM *vm) {
+    javaVM = vm;
+}
+
 
 /** Linked list element of a RPC requests sent by us. It is used to keep track of callback objects and RPC ids. */
 struct callback_list_elem {
