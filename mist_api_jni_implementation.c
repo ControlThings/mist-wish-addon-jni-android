@@ -191,30 +191,6 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
 
         bson_type type = bson_iterator_type(&it);
 
-#if 0
-        switch(type) {
-        case BSON_BOOL:
-            bson_append_bool(&bs, "data", bson_iterator_bool(&it));
-            break;
-        case BSON_INT:
-            bson_append_int(&bs, "data", bson_iterator_int(&it));
-            break;
-        case BSON_DOUBLE:
-            bson_append_double(&bs, "data", bson_iterator_double(&it));
-            break;
-        case BSON_STRING:
-        case BSON_OBJECT:
-        case BSON_ARRAY:
-        case BSON_BINDATA:
-            bson_append_element(&bs, "data", &it);
-            break;
-        case BSON_EOO:
-            WISHDEBUG(LOG_CRITICAL, "Unexpected end of BSON, no data");
-            break;
-        default:
-            WISHDEBUG(LOG_CRITICAL, "Unsupported bson type %i of data element", type);
-        }
-#else
         if (type == BSON_EOO) {
             WISHDEBUG(LOG_CRITICAL, "Unexpected end of BSON, no data");
             /* FIXME activate err callback here */
@@ -223,7 +199,7 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
         else {
             bson_append_element(&bs, "data", &it);
         }
-#endif
+
         bson_finish(&bs);
 
         uint8_t *data_doc = (uint8_t *) bson_data(&bs);
