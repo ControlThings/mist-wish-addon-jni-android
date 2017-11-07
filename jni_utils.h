@@ -5,6 +5,8 @@
 #ifndef WISH_JNI_UTILS_H
 #define WISH_JNI_UTILS_H
 
+#include <stdbool.h>
+
 int android_wish_printf(const char *format, ...);
 int android_wish_vprintf(const char *format, va_list arg_list);
 

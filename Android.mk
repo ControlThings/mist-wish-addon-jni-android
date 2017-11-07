@@ -9,7 +9,7 @@ WISH_MODULES = mist-c99/deps/mbedtls-2.1.2/library mist-c99/wish_app mist-c99/de
 
 WISH_SRC := 
 LOCAL_MODULE    := mist
-LOCAL_SRC_FILES := wish_bridge_jni.c jni_utils.c jni_implementation.c mist-c99/wish_app_deps/wish_platform.c mist-c99/wish_app_deps/wish_debug.c mist-c99/wish_app_deps/wish_utils.c mist-c99/wish_app_deps/wish_fs.c filesystem.c $(foreach sdir,$(WISH_MODULES),$(wildcard $(sdir)/*.c))
+LOCAL_SRC_FILES := wish_bridge_jni.c jni_utils.c concurrency.c mist_api_jni_implementation.c jni_implementation.c mist-c99/wish_app_deps/wish_platform.c mist-c99/wish_app_deps/wish_debug.c mist-c99/wish_app_deps/wish_utils.c mist-c99/wish_app_deps/wish_fs.c filesystem.c $(foreach sdir,$(WISH_MODULES),$(wildcard $(sdir)/*.c))
 LOCAL_C_INCLUDES := mist-c99/deps/mbedtls-2.1.2/include mist-c99/wish mist-c99/deps/ed25519/src mist-c99/deps/wish-rpc-c99/src mist-c99/wish_app mist-c99/wish_app_deps mist-c99/port/unix mist-c99/deps/bson/ mist-c99/deps/uthash/include mist-c99/src
 LOCAL_LDLIBS := -llog
 

@@ -9,6 +9,7 @@
 
 #include "wish_app.h"
 #include "app_service_ipc.h"
+#include "mist_app.h"
 
 /*
 To re-create JNI interface:
@@ -28,10 +29,13 @@ To re-create JNI interface:
 #include "wish_bridge_jni.h"
 #include "jni_utils.h"
 #include "mist_node_api_helper.h"
+#include "concurrency.h"
 
 static JavaVM *javaVM;
 
 static jobject wishAppBridgeInstance;
+
+static bool bridge_connected = false;
 
 /*
 * Class:     fi_ct_mist_WishAppJni
@@ -57,7 +61,7 @@ JNIEXPORT jobject JNICALL Java_addon_WishBridgeJni_register(JNIEnv *env, jobject
         android_wish_printf("Failed creating wsid byte array");
         return NULL;
     }
-    (*env)->SetByteArrayRegion(env, java_wsid, 0, WISH_WSID_LEN, (const jbyte *) get_mist_node_app()->wsid);
+    (*env)->SetByteArrayRegion(env, java_wsid, 0, WISH_WSID_LEN, (const jbyte *) get_wish_app()->wsid);
 
     return java_wsid;
 }
@@ -65,10 +69,17 @@ JNIEXPORT jobject JNICALL Java_addon_WishBridgeJni_register(JNIEnv *env, jobject
 uint8_t my_wsid[WISH_WSID_LEN];
 
 /** Implementation of send_app_to_core.
- * It will transform the arguments into Java objects and calls receiveAppToCore defined in
+ * It will transform the arguments into Java objects and calls receiveAppToCore.
+ *
+ * Note that any thread execuring this function is already owner ot the monitor.
  */
 void send_app_to_core(uint8_t *wsid, const uint8_t *data, size_t len) {
     android_wish_printf("Send app to core");
+
+    if (bridge_connected == false) {
+        android_wish_printf("send_app_to_core: Bridge is not connected, will not continue!");
+        return;
+    }
 
     if (data == NULL) {
         android_wish_printf("Send app to core: data is NULL!");
@@ -131,6 +142,8 @@ void send_app_to_core(uint8_t *wsid, const uint8_t *data, size_t len) {
 JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *env, jobject jthis, jbyteArray java_data) {
     android_wish_printf("Receive core to app");
 
+    monitor_enter();
+
     if (java_data == NULL) {
         android_wish_printf("Receive core to app: java_data is null.");
         return;
@@ -153,6 +166,8 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *e
     }
 
     free(data);
+
+    monitor_exit();
 }
 
 /*
@@ -162,7 +177,12 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *e
  */
 JNIEXPORT void JNICALL Java_addon_WishBridgeJni_connected
   (JNIEnv *env, jobject jthis, jboolean connected) {
-    /* Call wish_app_login on our app */
-    wish_app_connected(get_mist_node_app(), connected);
 
+    monitor_enter();
+
+    /* Call wish_app_login on our app */
+    wish_app_connected(get_wish_app(), connected);
+    bridge_connected = connected;
+
+    monitor_exit();
 }
