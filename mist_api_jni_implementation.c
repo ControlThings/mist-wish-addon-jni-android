@@ -347,6 +347,11 @@ static int next_id = 1;
 JNIEXPORT jint JNICALL Java_mistApi_MistApi_request(JNIEnv *env, jobject jthis, jbyteArray java_req_bson, jobject java_callback) {
     WISHDEBUG(LOG_CRITICAL, "in mistApiRequest JNI");
 
+    if (mist_api == NULL) {
+        android_wish_printf("MistAPI not initted - Request fails");
+        return 0;
+    }
+
     monitor_enter();
 
     size_t req_buf_length = 0;
@@ -426,6 +431,12 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_requestCancel(JNIEnv *env, jobject j
  */
 JNIEXPORT jint JNICALL Java_mistApi_MistApi_sandboxedRequest(JNIEnv *env, jobject jthis, jbyteArray sandbox, jbyteArray java_req_bson, jobject java_callback) {
     WISHDEBUG(LOG_CRITICAL, "in sandboxedApiRequest JNI");
+
+    if (mist_api == NULL) {
+        android_wish_printf("MistAPI not initted - Request fails");
+        return 0;
+    }
+
 
     monitor_enter();
 
