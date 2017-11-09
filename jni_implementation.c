@@ -1043,6 +1043,10 @@ JNIEXPORT void JNICALL Java_mistNode_MistNode_requestCancel(JNIEnv *env, jobject
 
     rpc_client_req *req = rpc_client_find_req(&get_mist_model()->mist_app->protocol.rpc_client, request_id);
 
+    if (req == NULL) {
+        android_wish_printf("in MistNode requestCancel: req is null, this means no RPC with request_id %i found!", request_id);
+    }
+
     mist_app_cancel(get_mist_model()->mist_app, req);
 
     monitor_exit();
@@ -1090,13 +1094,17 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_th
  * Signature: (I)I
  */
 JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
-    android_wish_printf("in WishAode requestCancel");
+    android_wish_printf("in WishApp requestCancel");
 
     monitor_enter();
 
     wish_app_t *app = addon_get_wish_app();
 
     rpc_client_req *req = rpc_client_find_req(&app->rpc_client, request_id);
+
+    if (req == NULL) {
+        android_wish_printf("in WishApp requestCancel: req is null, this means no RPC with request_id %i found!", request_id);
+    }
 
     wish_app_cancel(app, req);
 
