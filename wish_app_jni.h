@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     wishApp_WishApp
  * Method:    startWishApp
- * Signature: (Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Laddon/WishFile;)V
  */
 JNIEXPORT void JNICALL Java_wishApp_WishApp_startWishApp
-  (JNIEnv *, jobject, jstring);
+  (JNIEnv *, jobject, jstring, jobject);
 
 /*
  * Class:     wishApp_WishApp
@@ -38,6 +38,14 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request
  */
 JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     wishApp_WishApp
+ * Method:    bsonConsolePrettyPrinter
+ * Signature: (Ljava/lang/String;[B)V
+ */
+JNIEXPORT void JNICALL Java_wishApp_WishApp_bsonConsolePrettyPrinter
+  (JNIEnv *, jclass, jstring, jbyteArray);
 
 #ifdef __cplusplus
 }

@@ -5,6 +5,8 @@
 #ifndef REFERENCE_FILESYSTEM_H
 #define REFERENCE_FILESYSTEM_H
 
+void wish_file_init(jobject global_wish_file_ref);
+
 /* Prototypes for filesystem functions implemented later in this file */
 wish_file_t my_fs_open(const char *filename);
 int32_t my_fs_close(wish_file_t fileId);

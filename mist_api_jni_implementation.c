@@ -37,7 +37,7 @@ static mist_api_t* mist_api;
  * Method:    startMistApp
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jthis, jstring java_appName, jobject java_mistNode) {
+JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jthis, jstring java_appName, jobject java_mistNode, jobject java_wish_file) {
     android_wish_printf("in startMistApi!");
 
     if ((*env)->GetJavaVM(env,&javaVM) < 0) {
@@ -45,6 +45,9 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jt
         return;
     }
     setJavaVM(javaVM);
+
+    jobject wish_file_global_ref = (*env)->NewGlobalRef(env, java_wish_file);
+    wish_file_init(wish_file_global_ref);
 
     jobject node_global_ref = (*env)->NewGlobalRef(env, java_mistNode);
     monitor_init(javaVM, node_global_ref);

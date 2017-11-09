@@ -13,12 +13,20 @@
 #include "jni_utils.h"
 #include "mist_node_api_helper.h"
 
+/* To see the corresponding method signatures of class WishFile:
 
+javap -s -classpath ../../../../MistApi/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar addon.WishFile
 
-
+*/
 
 /* This defines the maximum allowable length of the file name */
 #define MAX_FILENAME_LENGTH 32
+
+static jobject wish_file_instance;
+
+void wish_file_init(jobject global_wish_file_ref) {
+    wish_file_instance = global_wish_file_ref;
+}
 
 /*
  * This function is called by the Wish fs abstraction layer when a file is to be opened.
@@ -27,15 +35,14 @@ wish_file_t my_fs_open(const char *filename) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return 0;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
-    jmethodID openFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "openFile", "(Ljava/lang/String;)I");
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
+    jmethodID openFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "open", "(Ljava/lang/String;)I");
     if (openFileMethodId == NULL) {
         android_wish_printf("Method cannot be found");
     }
@@ -45,9 +52,7 @@ wish_file_t my_fs_open(const char *filename) {
         android_wish_printf("Filename string creation error");
     }
 
-    //enter_WishOsJni_monitor();
-    int file_id = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, openFileMethodId, java_filename);
-    //exit_WishOsJni_monitor();
+    int file_id = (*my_env)->CallIntMethod(my_env, wish_file_instance, openFileMethodId, java_filename);
 
     (*my_env)->DeleteLocalRef(my_env, java_filename);
 
@@ -64,22 +69,19 @@ int32_t my_fs_close(wish_file_t fileId) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return -1;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
-    jmethodID closeFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "closeFile", "(I)I");
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
+    jmethodID closeFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "close", "(I)I");
     if (closeFileMethodId == NULL) {
         android_wish_printf("Method cannot be found");
     }
 
-    //enter_WishOsJni_monitor();
-    int ret = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, closeFileMethodId, fileId);
-    //exit_WishOsJni_monitor();
+    int ret = (*my_env)->CallIntMethod(my_env, wish_file_instance, closeFileMethodId, fileId);
 
     if (did_attach) {
         detachThread(javaVM);
@@ -95,15 +97,14 @@ int32_t my_fs_read(wish_file_t fileId, void* buf, size_t count) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return -1;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
-    jmethodID readFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "readFile", "(I[BI)I");
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
+    jmethodID readFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "read", "(I[BI)I");
     if (readFileMethodId == NULL) {
         android_wish_printf("Method cannot be found");
     }
@@ -113,9 +114,7 @@ int32_t my_fs_read(wish_file_t fileId, void* buf, size_t count) {
 
     (*my_env)->SetByteArrayRegion(my_env, java_buf, 0, count, buf);
 
-    //enter_WishOsJni_monitor();
-    int ret = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, readFileMethodId, fileId, java_buf, count);
-    //exit_WishOsJni_monitor();
+    int ret = (*my_env)->CallIntMethod(my_env, wish_file_instance, readFileMethodId, fileId, java_buf, count);
 
     if (ret > 0) {
         (*my_env)->GetByteArrayRegion(my_env, java_buf, 0, ret, buf);
@@ -140,15 +139,14 @@ int32_t my_fs_write(wish_file_t fileId, const void* buf, size_t count) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return -1;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
-    jmethodID writeFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "writeFile", "(I[BI)I");
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
+    jmethodID writeFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "write", "(I[BI)I");
     if (writeFileMethodId == NULL) {
         android_wish_printf("Method cannot be found");
     }
@@ -157,9 +155,8 @@ int32_t my_fs_write(wish_file_t fileId, const void* buf, size_t count) {
     jbyteArray java_buf = (*my_env)->NewByteArray(my_env, count);
     (*my_env)->SetByteArrayRegion(my_env, java_buf, 0, count, buf);
 
-    //enter_WishOsJni_monitor();
-    int ret = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, writeFileMethodId, fileId, java_buf, count);
-    //exit_WishOsJni_monitor();
+    int ret = (*my_env)->CallIntMethod(my_env, wish_file_instance, writeFileMethodId, fileId, java_buf, count);
+
 
     (*my_env)->DeleteLocalRef(my_env, java_buf);
     (*my_env)->DeleteLocalRef(my_env, serviceClass);
@@ -179,41 +176,38 @@ int32_t my_fs_lseek(wish_file_t fileId, wish_offset_t offset, int whence) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return -1;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
-    jmethodID seekFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "seekFile", "(III)I");
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
+    jmethodID seekFileMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "seek", "(III)J");
     if (seekFileMethodId == NULL) {
         android_wish_printf("Method cannot be found");
     }
 
-    //enter_WishOsJni_monitor();
-    int ret = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, seekFileMethodId, fileId, offset, whence);
-    //exit_WishOsJni_monitor();
+    /* FIXME: The return type of seek() should be long (int64_t) also inside the wish filesystem abstraction layer! */
+    jlong ret = (*my_env)->CallLongMethod(my_env, wish_file_instance, seekFileMethodId, fileId, offset, whence);
 
     if (did_attach) {
         detachThread(javaVM);
     }
-    return ret;
+    return (int32_t) ret;
 }
 
 int32_t my_fs_rename(const char *oldname, const char *newname) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return 0;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
     jmethodID renameMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "rename", "(Ljava/lang/String;Ljava/lang/String;)I");
     if (renameMethodId == NULL) {
         android_wish_printf("Method cannot be found");
@@ -229,9 +223,7 @@ int32_t my_fs_rename(const char *oldname, const char *newname) {
         android_wish_printf("New filename string creation error");
     }
 
-    //enter_WishOsJni_monitor();
-    int retval = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, renameMethodId, java_oldfilename, java_newfilename);
-    //exit_WishOsJni_monitor();
+    int retval = (*my_env)->CallIntMethod(my_env, wish_file_instance, renameMethodId, java_oldfilename, java_newfilename);
 
     (*my_env)->DeleteLocalRef(my_env, java_oldfilename);
     (*my_env)->DeleteLocalRef(my_env, java_newfilename);
@@ -246,14 +238,13 @@ int32_t my_fs_remove(const char *file_name) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     JavaVM *javaVM = getJavaVM();
-    jobject mistNodeApiInstance = getMistNodeApiInstance();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
         return 0;
     }
 
-    jclass serviceClass = (*my_env)->GetObjectClass(my_env, mistNodeApiInstance);
+    jclass serviceClass = (*my_env)->GetObjectClass(my_env, wish_file_instance);
     jmethodID removeMethodId = (*my_env)->GetMethodID(my_env, serviceClass, "remove", "(Ljava/lang/String;)I");
     if (removeMethodId == NULL) {
         android_wish_printf("Method cannot be found");
@@ -264,9 +255,7 @@ int32_t my_fs_remove(const char *file_name) {
         android_wish_printf("Error creating string!");
     }
 
-    //enter_WishOsJni_monitor();
-    int retval = (*my_env)->CallIntMethod(my_env, mistNodeApiInstance, removeMethodId, java_filename);
-    //exit_WishOsJni_monitor();
+    int retval = (*my_env)->CallIntMethod(my_env, wish_file_instance, removeMethodId, java_filename);
 
     (*my_env)->DeleteLocalRef(my_env, java_filename);
 

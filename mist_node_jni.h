@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     mistNode_MistNode
  * Method:    startMistApp
- * Signature: (Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Laddon/WishFile;)V
  */
 JNIEXPORT void JNICALL Java_mistNode_MistNode_startMistApp
-  (JNIEnv *, jobject, jstring);
+  (JNIEnv *, jobject, jstring, jobject);
 
 /*
  * Class:     mistNode_MistNode

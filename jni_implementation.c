@@ -347,7 +347,7 @@ void init_common_mist_app(char *app_name) {
  * Method:    startMistApp
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_mistNode_MistNode_startMistApp(JNIEnv *env, jobject java_this, jstring java_appName) {
+JNIEXPORT void JNICALL Java_mistNode_MistNode_startMistApp(JNIEnv *env, jobject java_this, jstring java_appName, jobject java_wish_file) {
 
     android_wish_printf("in startMistApp");
 
@@ -359,6 +359,9 @@ JNIEXPORT void JNICALL Java_mistNode_MistNode_startMistApp(JNIEnv *env, jobject 
 
     mistNodeInstance = (*env)->NewGlobalRef(env, java_this);
     monitor_init(javaVM, mistNodeInstance);
+
+    jobject wish_file_global_ref = (*env)->NewGlobalRef(env, java_wish_file);
+    wish_file_init(wish_file_global_ref);
 
     monitor_enter();
     char *name_str =  (char*) (*env)->GetStringUTFChars(env, java_appName, NULL);
@@ -732,6 +735,11 @@ struct callback_list_elem *wish_cb_list_head = NULL;
  * This call-back method is invoked both for Mist and Wish RPC requests.  It will call methods of the callback object associated with the request id
  */
 static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payload, size_t payload_len) {
+
+    /* Enter Critical section to protect the cb lists from concurrent modification. */
+
+    monitor_enter();
+
     //WISHDEBUG(LOG_CRITICAL, "Callback invoked!");
     bson_visit("generic_callback invoked!", payload);
 
@@ -754,6 +762,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
     JNIEnv * my_env = NULL;
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
+
+        monitor_exit();
+
         return;
     }
 
@@ -793,6 +804,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
 
     if (!is_ack && !is_sig && !is_err) {
         WISHDEBUG(LOG_CRITICAL, "Not ack, sig or err!");
+
+        monitor_exit();
+
         return;
     }
 
@@ -800,33 +814,22 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
     struct callback_list_elem *elem = NULL;
     struct callback_list_elem *tmp = NULL;
 
-    /* Enter Critical section to protect the cb lists from concurrent modification. */
-    if (monitor_enter() == 0) {
-        LL_FOREACH_SAFE(*cb_list_head, elem, tmp) {
-            if (elem->request_id == req_id) {
-                cb_obj = elem->cb_obj;
-                if (is_ack || is_err) {
-                    WISHDEBUG(LOG_CRITICAL, "Removing cb_list element for id %i", req_id);
-                    LL_DELETE(*cb_list_head, elem);
-                    free(elem);
-                }
+    LL_FOREACH_SAFE(*cb_list_head, elem, tmp) {
+        if (elem->request_id == req_id) {
+            cb_obj = elem->cb_obj;
+            if (is_ack || is_err) {
+                WISHDEBUG(LOG_CRITICAL, "Removing cb_list element for id %i", req_id);
+                LL_DELETE(*cb_list_head, elem);
+                free(elem);
             }
         }
     }
-    else {
-        WISHDEBUG(LOG_CRITICAL, "There was a critical error while trying to enter critical section");
-        return;
-    }
-
-    /* Exit critical section */
-    if (monitor_exit() != 0) {
-        WISHDEBUG(LOG_CRITICAL, "There was a critical error while trying to exit critical section");
-        return;
-    }
-
 
     if (cb_obj == NULL) {
         WISHDEBUG(LOG_CRITICAL, "Could not find the request from cb_list");
+
+        monitor_exit();
+
         return;
     }
 
@@ -834,6 +837,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
     jclass cbClass = (*my_env)->GetObjectClass(my_env, cb_obj);
     if (cbClass == NULL) {
         WISHDEBUG(LOG_CRITICAL, "Cannot get Mist API callback class");
+
+        monitor_exit();
+
         return;
     }
 
@@ -877,6 +883,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
         java_data = (*my_env)->NewByteArray(my_env, data_doc_len);
         if (java_data == NULL) {
             WISHDEBUG(LOG_CRITICAL, "Failed creating java buffer for ack or sig data");
+
+            monitor_exit();
+
             return;
         }
         (*my_env)->SetByteArrayRegion(my_env, java_data, 0, data_doc_len, (const jbyte *) data_doc);
@@ -889,6 +898,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
         jmethodID ackMethodId = (*my_env)->GetMethodID(my_env, cbClass, "ack", "([B)V");
         if (ackMethodId == NULL) {
             WISHDEBUG(LOG_CRITICAL, "Cannot get ack method");
+
+            monitor_exit();
+
             return;
         }
         (*my_env)->CallVoidMethod(my_env, cb_obj, ackMethodId, java_data);
@@ -900,6 +912,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
         jmethodID sigMethodId = (*my_env)->GetMethodID(my_env, cbClass, "sig", "([B)V");
         if (sigMethodId == NULL) {
             WISHDEBUG(LOG_CRITICAL, "Cannot get sig method");
+
+            monitor_exit();
+
             return;
         }
         (*my_env)->CallVoidMethod(my_env, cb_obj, sigMethodId, java_data);
@@ -957,6 +972,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
         jmethodID errMethodId = (*my_env)->GetMethodID(my_env, cbClass, "err", "(ILjava/lang/String;)V");
         if (errMethodId == NULL) {
             WISHDEBUG(LOG_CRITICAL, "Cannot get sig method");
+
+            monitor_exit();
+
             return;
         }
         (*my_env)->CallVoidMethod(my_env, cb_obj, errMethodId, code, java_msg);
@@ -979,6 +997,10 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
     if (did_attach) {
         detachThread(javaVM);
     }
+
+    /* Exit critical section */
+
+    monitor_exit();
 }
 
 /** Build the complete RPC request BSON from the Java arguments, and save the callback object. At this point it does not matter if we are making a Mist or Wish request */
@@ -1087,6 +1109,7 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_th
     uint8_t *req_bson = (uint8_t *) calloc(req_bson_len, 1);
     if (req_bson == NULL) {
         android_wish_printf("Malloc fails (req)");
+        monitor_exit();
         return 0;
     }
     (*env)->GetByteArrayRegion(env, java_req, 0, req_bson_len, req_bson);
