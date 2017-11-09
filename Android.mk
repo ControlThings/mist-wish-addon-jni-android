@@ -16,7 +16,7 @@ LOCAL_LDLIBS := -llog
 #LOCAL_CFLAGS := -g -O0 -Wall -Wno-pointer-sign -Werror -fvisibility=hidden -Wno-unused-variable -Wno-unused-function
 LOCAL_CFLAGS := -Os -Wall -Wno-pointer-sign -Werror -fvisibility=hidden -Wno-unused-variable -Wno-unused-function
 LOCAL_CFLAGS += -DMIST_API_VERSION_STRING=\"$(shell cd mist-c99; git describe --abbrev=4 --dirty --always --tags)\"
-LOCAL_CFLAGS += -DRELEASE_BUILD
+#LOCAL_CFLAGS += -DRELEASE_BUILD
 
 #Put each function in own section, so that linker can discard unused code
 LOCAL_CFLAGS += -ffunction-sections -fdata-sections 
