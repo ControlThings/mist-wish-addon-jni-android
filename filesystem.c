@@ -12,6 +12,7 @@
 #include "filesystem.h"
 #include "jni_utils.h"
 #include "mist_node_api_helper.h"
+#include "addon.h"
 
 /* To see the corresponding method signatures of class WishFile:
 

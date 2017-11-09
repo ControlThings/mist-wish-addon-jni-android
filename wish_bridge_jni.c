@@ -28,7 +28,7 @@ To re-create JNI interface:
 /* To re-generate the JNI Header file:  */
 #include "wish_bridge_jni.h"
 #include "jni_utils.h"
-#include "mist_node_api_helper.h"
+#include "addon.h"
 #include "concurrency.h"
 
 static JavaVM *javaVM;

@@ -13,19 +13,6 @@
 #include "mist_node_api_helper.h"
 
 
-static wish_app_t *app;
-
-wish_app_t *get_wish_app(void) {
-    return app;
-}
-
-void init_common_wish_app(char *app_name) {
-    app = wish_app_create(app_name);
-    if (app == NULL) {
-        WISHDEBUG(LOG_CRITICAL, "Failed creating wish app!");
-    }
-}
-
 /*
  * Class:     wishApp_WishApp
  * Method:    bsonConsolePrettyPrinter

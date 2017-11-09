@@ -26,9 +26,7 @@
 
 #include "concurrency.h"
 #include "mist_node_api_helper.h"
-
-static JavaVM *javaVM = NULL;
-static jobject rawApiInstance = NULL;
+#include "addon.h"
 
 static mist_api_t* mist_api;
 
@@ -40,6 +38,7 @@ static mist_api_t* mist_api;
 JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jthis, jstring java_appName, jobject java_mistNode, jobject java_wish_file) {
     android_wish_printf("in startMistApi!");
 
+    JavaVM *javaVM;
     if ((*env)->GetJavaVM(env,&javaVM) < 0) {
         android_wish_printf("Failed to GetJavaVM");
         return;
@@ -51,25 +50,18 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jt
 
     jobject node_global_ref = (*env)->NewGlobalRef(env, java_mistNode);
     monitor_init(javaVM, node_global_ref);
+    setMistNodeInstance(node_global_ref);
 
     monitor_enter();
 
     /* Register a refence to the JVM */
 
-
-
     char *name_str =  (char*) (*env)->GetStringUTFChars(env, java_appName, NULL);
-    init_common_mist_app(name_str);
+    addon_init_mist_app(name_str);
     (*env)->ReleaseStringUTFChars(env, java_appName, name_str);
 
 
     mist_api = mist_api_init(get_mist_app());
-
-    rawApiInstance = (*env)->NewGlobalRef(env, jthis);
-
-
-    setMistNodeInstance(node_global_ref);
-
 
     monitor_exit();
     /* The app will login to core when the Bridge connects, this happens via the wish_app_connected(wish_app_t *app, bool connected) function in fi_ct_mist_mistlib_WishBridgeJni:connected */
@@ -100,6 +92,7 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
     /* Enter Critical section */
     monitor_enter();
 
+    JavaVM *javaVM = getJavaVM();
 
     bool did_attach = false;
     JNIEnv * my_env = NULL;
