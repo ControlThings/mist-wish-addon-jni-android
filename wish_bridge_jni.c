@@ -44,8 +44,14 @@ static bool bridge_connected = false;
 */
 JNIEXPORT jobject JNICALL Java_addon_WishBridgeJni_register(JNIEnv *env, jobject jthis, jobject wishAppBridge) {
     /* Register a refence to the JVM */
+
+    monitor_enter();
+
     if ((*env)->GetJavaVM(env,&javaVM) < 0) {
         android_wish_printf("Failed to GetJavaVM");
+
+        monitor_exit();
+
         return NULL;
     }
 
@@ -53,15 +59,23 @@ JNIEXPORT jobject JNICALL Java_addon_WishBridgeJni_register(JNIEnv *env, jobject
     wishAppBridgeInstance = (*env)->NewGlobalRef(env, wishAppBridge);
     if (wishAppBridgeInstance == NULL) {
         android_wish_printf("Out of memory!");
+
+        monitor_exit();
+
         return NULL;
     }
 
     jbyteArray java_wsid = (*env)->NewByteArray(env, WISH_WSID_LEN);
     if (java_wsid == NULL) {
         android_wish_printf("Failed creating wsid byte array");
+
+        monitor_exit();
+
         return NULL;
     }
     (*env)->SetByteArrayRegion(env, java_wsid, 0, WISH_WSID_LEN, (const jbyte *) get_wish_app()->wsid);
+
+    monitor_exit();
 
     return java_wsid;
 }
@@ -71,7 +85,7 @@ uint8_t my_wsid[WISH_WSID_LEN];
 /** Implementation of send_app_to_core.
  * It will transform the arguments into Java objects and calls receiveAppToCore.
  *
- * Note that any thread execuring this function is already owner ot the monitor.
+ * Note that any thread executing this function is already owner ot the monitor.
  */
 void send_app_to_core(uint8_t *wsid, const uint8_t *data, size_t len) {
     android_wish_printf("Send app to core");
@@ -146,6 +160,9 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *e
 
     if (java_data == NULL) {
         android_wish_printf("Receive core to app: java_data is null.");
+
+        monitor_exit();
+
         return;
     }
 
@@ -153,6 +170,9 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *e
     uint8_t *data = (uint8_t *) calloc(data_length, 1);
     if (data == NULL) {
         android_wish_printf("Malloc fails");
+
+        monitor_exit();
+
         return;
     }
     (*env)->GetByteArrayRegion(env, java_data, 0, data_length, data);
