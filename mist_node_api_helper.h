@@ -19,6 +19,8 @@ jobject getMistNodeApiInstance();
 
 void setMistNodeInstance(jobject global_ref);
 
+void init_common_wish_app(char *app_name);
+
 void init_common_mist_app(char *app_name);
 
 

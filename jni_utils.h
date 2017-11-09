@@ -21,4 +21,6 @@ jmethodID get_methodID(JNIEnv *env, jobject instance, char *method_name, char* s
     Note: Caller is responsible for releasing the pointer returned from this function! */
 char *get_string_from_obj_field(JNIEnv *env, jobject java_obj, char *field_name);
 
+void log_bson_visit_inner(const uint8_t* data, uint8_t depth, char *log_tag);
+
 #endif //WISH_JNI_UTILS_H

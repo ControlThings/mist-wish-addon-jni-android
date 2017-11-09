@@ -38,9 +38,23 @@ To re-create JNI interface:
 
 
 static JavaVM *javaVM;
+
+JavaVM *getJavaVM(void) {
+    return javaVM;
+}
+
+void setJavaVM(JavaVM *vm) {
+    javaVM = vm;
+}
+
 static mist_model *model;
-static wish_app_t *app;
+
 static mist_app_t *mist_app;
+
+mist_app_t *get_mist_app(void) {
+    return mist_app;
+}
+
 static jobject mistNodeInstance;
 
 void setMistNodeInstance(jobject global_ref) {
@@ -334,10 +348,9 @@ void init_common_mist_app(char *app_name) {
 
     model = &mist_app->model;
 
-    app = wish_app_create(app_name);
-    if (app == NULL) {
-        WISHDEBUG(LOG_CRITICAL, "Failed creating wish app!");
-    }
+    init_common_wish_app(app_name);
+
+    wish_app_t *app = get_wish_app();
     wish_app_add_protocol(app, &mist_app->protocol);
     mist_app->app = app;
 }
@@ -692,27 +705,6 @@ JNIEXPORT void JNICALL Java_mistNode_MistNode_changed(JNIEnv *env, jobject java_
     monitor_exit();
 }
 
-
-
-
-wish_app_t *get_wish_app(void) {
-    return app;
-}
-
-mist_app_t *get_mist_app(void) {
-    return mist_app;
-}
-
-
-JavaVM *getJavaVM(void) {
-    return javaVM;
-}
-
-void setJavaVM(JavaVM *vm) {
-    javaVM = vm;
-}
-
-
 /** Linked list element of a RPC requests sent by us. It is used to keep track of callback objects and RPC ids. */
 struct callback_list_elem {
     /** The RPC id associated with the callback entry */
@@ -739,6 +731,8 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
     /* Enter Critical section to protect the cb lists from concurrent modification. */
 
     monitor_enter();
+
+    wish_app_t *app = get_wish_app();
 
     //WISHDEBUG(LOG_CRITICAL, "Callback invoked!");
     bson_visit("Mist Node generic_callback payload", payload);
@@ -1105,6 +1099,8 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_th
 
     monitor_enter();
 
+    wish_app_t *app = get_wish_app();
+
     size_t req_bson_len = (*env)->GetArrayLength(env, java_req);
     uint8_t *req_bson = (uint8_t *) calloc(req_bson_len, 1);
     if (req_bson == NULL) {
@@ -1137,6 +1133,8 @@ JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel(JNIEnv *env, jobject j
     android_wish_printf("in WishAode requestCancel");
 
     monitor_enter();
+
+    wish_app_t *app = get_wish_app();
 
     rpc_client_req *req = rpc_client_find_req(&app->rpc_client, request_id);
 
