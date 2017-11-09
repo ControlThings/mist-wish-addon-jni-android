@@ -735,13 +735,13 @@ struct callback_list_elem *wish_cb_list_head = NULL;
  * This call-back method is invoked both for Mist and Wish RPC requests.  It will call methods of the callback object associated with the request id
  */
 static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payload, size_t payload_len) {
-
+    android_wish_printf("in Mist Node generic_callback");
     /* Enter Critical section to protect the cb lists from concurrent modification. */
 
     monitor_enter();
 
     //WISHDEBUG(LOG_CRITICAL, "Callback invoked!");
-    bson_visit("generic_callback invoked!", payload);
+    bson_visit("Mist Node generic_callback payload", payload);
 
     /* First decide if this callback is a Mist or Wish callback - this determines which callback list we will examine */
     struct callback_list_elem **cb_list_head = NULL;
