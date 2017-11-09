@@ -43,7 +43,7 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jt
         android_wish_printf("Failed to GetJavaVM");
         return;
     }
-    setJavaVM(javaVM);
+    addon_set_java_vm(javaVM);
 
     jobject wish_file_global_ref = (*env)->NewGlobalRef(env, java_wish_file);
     wish_file_init(wish_file_global_ref);
@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jt
     (*env)->ReleaseStringUTFChars(env, java_appName, name_str);
 
 
-    mist_api = mist_api_init(get_mist_app());
+    mist_api = mist_api_init(addon_get_mist_app());
 
     monitor_exit();
     /* The app will login to core when the Bridge connects, this happens via the wish_app_connected(wish_app_t *app, bool connected) function in fi_ct_mist_mistlib_WishBridgeJni:connected */
@@ -92,7 +92,7 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
     /* Enter Critical section */
     monitor_enter();
 
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     bool did_attach = false;
     JNIEnv * my_env = NULL;

@@ -35,7 +35,7 @@ void wish_file_init(jobject global_wish_file_ref) {
 wish_file_t my_fs_open(const char *filename) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
@@ -69,7 +69,7 @@ wish_file_t my_fs_open(const char *filename) {
 int32_t my_fs_close(wish_file_t fileId) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
@@ -97,7 +97,7 @@ int32_t my_fs_read(wish_file_t fileId, void* buf, size_t count) {
     android_wish_printf("in my fs read");
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
@@ -139,7 +139,7 @@ int32_t my_fs_write(wish_file_t fileId, const void* buf, size_t count) {
     android_wish_printf("in my fs write");
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
@@ -176,7 +176,7 @@ int32_t my_fs_write(wish_file_t fileId, const void* buf, size_t count) {
 int32_t my_fs_lseek(wish_file_t fileId, wish_offset_t offset, int whence) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
@@ -201,7 +201,7 @@ int32_t my_fs_lseek(wish_file_t fileId, wish_offset_t offset, int whence) {
 int32_t my_fs_rename(const char *oldname, const char *newname) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");
@@ -238,7 +238,7 @@ int32_t my_fs_rename(const char *oldname, const char *newname) {
 int32_t my_fs_remove(const char *file_name) {
     bool did_attach = false;
     JNIEnv * my_env = NULL;
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
         android_wish_printf("Method invocation failure, could not get JNI env");

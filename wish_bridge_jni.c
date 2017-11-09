@@ -73,7 +73,7 @@ JNIEXPORT jobject JNICALL Java_addon_WishBridgeJni_register(JNIEnv *env, jobject
 
         return NULL;
     }
-    (*env)->SetByteArrayRegion(env, java_wsid, 0, WISH_WSID_LEN, (const jbyte *) get_wish_app()->wsid);
+    (*env)->SetByteArrayRegion(env, java_wsid, 0, WISH_WSID_LEN, (const jbyte *) addon_get_wish_app()->wsid);
 
     monitor_exit();
 
@@ -202,8 +202,7 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_connected
 
     bridge_connected = connected;
     /* Call wish_app_login on our app */
-    wish_app_connected(get_wish_app(), connected);
-
+    wish_app_connected(addon_get_wish_app(), connected);
 
     monitor_exit();
 }

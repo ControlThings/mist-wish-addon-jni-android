@@ -75,7 +75,7 @@ static enum mist_error hw_read(mist_ep *ep,  wish_protocol_peer_t* peer, int req
     JNIEnv * env = NULL;
     bool did_attach = false;
 
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (javaVM == NULL) {
         android_wish_printf("in hw_read, javaVM is NULL!");
@@ -150,7 +150,7 @@ static enum mist_error hw_write(mist_ep *ep, wish_protocol_peer_t* peer, int req
     JNIEnv *env = NULL;
     bool did_attach = false;
 
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (javaVM == NULL) {
         android_wish_printf("hw_write, javaVM is NULL!");
@@ -234,7 +234,7 @@ static enum mist_error hw_invoke(mist_ep *ep, wish_protocol_peer_t* peer, int re
     JNIEnv *env = NULL;
     bool did_attach = false;
 
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     if (javaVM == NULL) {
         android_wish_printf("hw_write, javaVM is NULL!");
@@ -326,7 +326,7 @@ JNIEXPORT void JNICALL Java_mistNode_MistNode_startMistApp(JNIEnv *env, jobject 
         android_wish_printf("Failed to GetJavaVM");
         return;
     }
-    setJavaVM(javaVM);
+    addon_set_java_vm(javaVM);
 
     mistNodeInstance = (*env)->NewGlobalRef(env, java_this);
     monitor_init(javaVM, mistNodeInstance);
@@ -690,7 +690,7 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
 
     monitor_enter();
 
-    wish_app_t *app = get_wish_app();
+    wish_app_t *app = addon_get_wish_app();
 
     //WISHDEBUG(LOG_CRITICAL, "Callback invoked!");
     bson_visit("Mist Node generic_callback payload", payload);
@@ -710,7 +710,7 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
         return;
     }
 
-    JavaVM *javaVM = getJavaVM();
+    JavaVM *javaVM = addon_get_java_vm();
 
     bool did_attach = false;
     JNIEnv * my_env = NULL;
@@ -1059,7 +1059,7 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_th
 
     monitor_enter();
 
-    wish_app_t *app = get_wish_app();
+    wish_app_t *app = addon_get_wish_app();
 
     size_t req_bson_len = (*env)->GetArrayLength(env, java_req);
     uint8_t *req_bson = (uint8_t *) calloc(req_bson_len, 1);
@@ -1094,7 +1094,7 @@ JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel(JNIEnv *env, jobject j
 
     monitor_enter();
 
-    wish_app_t *app = get_wish_app();
+    wish_app_t *app = addon_get_wish_app();
 
     rpc_client_req *req = rpc_client_find_req(&app->rpc_client, request_id);
 

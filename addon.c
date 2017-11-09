@@ -13,17 +13,17 @@
 
 static JavaVM *javaVM;
 
-JavaVM *getJavaVM(void) {
+JavaVM *addon_get_java_vm(void) {
     return javaVM;
 }
 
-void setJavaVM(JavaVM *vm) {
+void addon_set_java_vm(JavaVM *vm) {
     javaVM = vm;
 }
 
 static wish_app_t *app;
 
-wish_app_t *get_wish_app(void) {
+wish_app_t *addon_get_wish_app(void) {
     return app;
 }
 
@@ -61,7 +61,7 @@ mist_model *get_mist_model(void) {
 
 static mist_app_t *mist_app;
 
-mist_app_t *get_mist_app(void) {
+mist_app_t *addon_get_mist_app(void) {
     return mist_app;
 }
 
