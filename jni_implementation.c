@@ -95,7 +95,7 @@ static enum mist_error hw_read(mist_ep *ep,  wish_protocol_peer_t* peer, int req
     }
 
     jclass mistNodeClass = (*env)->GetObjectClass(env, mistNodeInstance);
-    jmethodID readMethodId = (*env)->GetMethodID(env, mistNodeClass, "read", "(LmistNode/Endpoint;[BI)V");
+    jmethodID readMethodId = (*env)->GetMethodID(env, mistNodeClass, "read", "(Lmist/node/Endpoint;[BI)V");
     if (readMethodId == NULL) {
         android_wish_printf("Cannot get read method");
         return MIST_ERROR;
@@ -164,7 +164,7 @@ static enum mist_error hw_write(mist_ep *ep, wish_protocol_peer_t* peer, int req
     }
 
     /* Invoke method "write", signature (Lmist/node/Endpoint;[BI[B)V */
-    jmethodID write_method_id = get_methodID(env, mistNodeInstance, "write", "(LmistNode/Endpoint;[BI[B)V");
+    jmethodID write_method_id = get_methodID(env, mistNodeInstance, "write", "(Lmist/node/Endpoint;[BI[B)V");
     if (write_method_id == NULL) {
         android_wish_printf("hw_write, Cannot find write method!");
         return MIST_ERROR;
@@ -248,7 +248,7 @@ static enum mist_error hw_invoke(mist_ep *ep, wish_protocol_peer_t* peer, int re
     }
 
     /* Invoke method "invoke", signature (Lmist/node/Endpoint;[BI[B)V */
-    jmethodID invoke_method_id = get_methodID(env, mistNodeInstance, "invoke", "(LmistNode/Endpoint;[BI[B)V");
+    jmethodID invoke_method_id = get_methodID(env, mistNodeInstance, "invoke", "(Lmist/node/Endpoint;[BI[B)V");
     if (invoke_method_id == NULL) {
         android_wish_printf("hw_invoke, Cannot find invoke method!");
         return MIST_ERROR;
