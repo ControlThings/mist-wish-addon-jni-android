@@ -35,13 +35,17 @@ static mist_api_t* mist_api;
  * Method:    startMistApp
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jthis, jstring java_appName, jobject java_mistNode, jobject java_wish_file) {
+JNIEXPORT jint JNICALL Java_mist_api_MistApi_startMistApi(JNIEnv *env, jobject jthis, jstring java_appName, jobject java_mistNode, jobject java_wish_file) {
     android_wish_printf("in startMistApi!");
+
+     if (addon_is_started()) {
+        return mist_api_MistApi_MIST_API_ERROR_MULTIPLE_TIMES;
+     }
 
     JavaVM *javaVM;
     if ((*env)->GetJavaVM(env,&javaVM) < 0) {
         android_wish_printf("Failed to GetJavaVM");
-        return;
+        return mist_api_MistApi_MIST_API_ERROR_UNSPECIFIED;
     }
     addon_set_java_vm(javaVM);
 
@@ -65,6 +69,8 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_startMistApi(JNIEnv *env, jobject jt
 
     monitor_exit();
     /* The app will login to core when the Bridge connects, this happens via the wish_app_connected(wish_app_t *app, bool connected) function in fi_ct_mist_mistlib_WishBridgeJni:connected */
+
+    return mist_api_MistApi_MIST_API_SUCCESS;
 }
 
 
@@ -360,7 +366,7 @@ static int next_id = 1;
  * Method:    request
  * Signature: ([BLmistApi/MistApi/RequestCb;)I
  */
-JNIEXPORT jint JNICALL Java_mistApi_MistApi_request(JNIEnv *env, jobject jthis, jbyteArray java_req_bson, jobject java_callback) {
+JNIEXPORT jint JNICALL Java_mist_api_MistApi_request(JNIEnv *env, jobject jthis, jbyteArray java_req_bson, jobject java_callback) {
     WISHDEBUG(LOG_CRITICAL, "in mistApiRequest JNI");
 
     if (mist_api == NULL) {
@@ -431,7 +437,7 @@ JNIEXPORT jint JNICALL Java_mistApi_MistApi_request(JNIEnv *env, jobject jthis, 
  * Method:    requestCancel
  * Signature: (I)I
  */
-JNIEXPORT void JNICALL Java_mistApi_MistApi_requestCancel(JNIEnv *env, jobject jthis, jint id) {
+JNIEXPORT void JNICALL Java_mist_api_MistApi_requestCancel(JNIEnv *env, jobject jthis, jint id) {
 
     monitor_enter();
 
@@ -445,7 +451,7 @@ JNIEXPORT void JNICALL Java_mistApi_MistApi_requestCancel(JNIEnv *env, jobject j
  * Method:    sandboxedRequest
  * Signature: ([B[BLmistApi/MistApi/RequestCb;)I
  */
-JNIEXPORT jint JNICALL Java_mistApi_MistApi_sandboxedRequest(JNIEnv *env, jobject jthis, jbyteArray sandbox, jbyteArray java_req_bson, jobject java_callback) {
+JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobject jthis, jbyteArray sandbox, jbyteArray java_req_bson, jobject java_callback) {
     WISHDEBUG(LOG_CRITICAL, "in sandboxedApiRequest JNI");
 
     if (mist_api == NULL) {
@@ -551,7 +557,7 @@ JNIEXPORT jint JNICALL Java_mistApi_MistApi_sandboxedRequest(JNIEnv *env, jobjec
  * Method:    sandboxedRequestCancel
  * Signature: ([BI)I
  */
-JNIEXPORT void JNICALL Java_mistApi_MistApi_sandboxedRequestCancel(JNIEnv *env, jobject jthis, jbyteArray sandbox, jint id) {
+JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env, jobject jthis, jbyteArray sandbox, jint id) {
 
     monitor_enter();
 

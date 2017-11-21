@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include <jni.h>
 
@@ -10,6 +11,12 @@
 #include "filesystem.h"
 #include "addon.h"
 #include "jni_utils.h"
+
+static bool addon_started;
+
+bool addon_is_started(void) {
+    return addon_started;
+}
 
 static JavaVM *javaVM;
 
@@ -51,6 +58,8 @@ void addon_init_wish_app(char *app_name) {
     if (app == NULL) {
         WISHDEBUG(LOG_CRITICAL, "Failed creating wish app!");
     }
+
+    addon_started = true;
 }
 
 static mist_model *model;

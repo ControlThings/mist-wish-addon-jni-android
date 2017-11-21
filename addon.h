@@ -7,8 +7,11 @@
 
 #include <jni.h>
 
+#include <stdbool.h>
 #include "wish_app.h"
 #include "mist_app.h"
+
+bool addon_is_started(void);
 
 JavaVM *addon_get_java_vm(void);
 
