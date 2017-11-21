@@ -11,10 +11,26 @@
 
 #include "jni_utils.h"
 #include "mist_node_api_helper.h"
+#include "addon.h"
+
+/*
+ * Class:     wish_WishApp
+ * Method:    startWishApp
+ * Signature: (Ljava/lang/String;Laddon/WishFile;)I
+ */
+JNIEXPORT jint JNICALL Java_wish_WishApp_startWishApp(JNIEnv *env, jobject java_this, jstring java_app_name, jobject java_wish_file) {
+    if (addon_is_started()) {
+        return wish_WishApp_WISH_APP_ERROR_MULTIPLE_TIMES;
+    }
+
+    /* Using WishApp as an independent module is not supported yet. */
+    android_wish_printf("Using WishApp as an independent module is not supported yet.");
+    return wish_WishApp_WISH_APP_ERROR_UNSPECIFIED;
+}
 
 
 /*
- * Class:     wishApp_WishApp
+ * Class:     wish_WishApp
  * Method:    bsonConsolePrettyPrinter
  * Signature: (Ljava/lang/String;[B)V
  */

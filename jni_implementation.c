@@ -1066,7 +1066,7 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_requestCancel(JNIEnv *env, jobjec
  * Method:    wishRequest
  * Signature: ([BLmist/node/MistNode/RequestCb;)I
  */
-JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_this, jbyteArray java_req, jobject callback_obj) {
+JNIEXPORT jint JNICALL Java_wish_WishApp_request(JNIEnv *env, jobject java_this, jbyteArray java_req, jobject callback_obj) {
     android_wish_printf("in WishApp request");
 
     monitor_enter();
@@ -1101,7 +1101,7 @@ JNIEXPORT jint JNICALL Java_wishApp_WishApp_request(JNIEnv *env, jobject java_th
  * Method:    requestCancel
  * Signature: (I)I
  */
-JNIEXPORT void JNICALL Java_wishApp_WishApp_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
+JNIEXPORT void JNICALL Java_wish_WishApp_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
     android_wish_printf("in WishApp requestCancel");
 
     monitor_enter();
