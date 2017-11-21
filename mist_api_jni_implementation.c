@@ -442,6 +442,7 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_requestCancel(JNIEnv *env, jobject 
     monitor_enter();
 
     mist_api_request_cancel(mist_api, id);
+    /* FIXME: Should clean up the JNI request list also. */
 
     monitor_exit();
 }
@@ -562,6 +563,7 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env,
     monitor_enter();
 
     sandboxed_api_request_cancel(mist_api, sandbox, id);
+    /* FIXME: Should clean up the JNI request list also. */
 
     monitor_exit();
 }

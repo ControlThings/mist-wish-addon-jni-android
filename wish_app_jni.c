@@ -2,6 +2,12 @@
 // Created by jan on 11/9/17.
 //
 
+/* To re-create the JNI interface:
+
+javah -classpath ../../../../MistApi/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o wish_app_jni.h wish.WishApp
+
+*/
+
 #include <stdlib.h>
 
 #include <jni.h>

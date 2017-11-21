@@ -21,14 +21,14 @@ To re-create JNI interface:
 
  To Renew header file using javah
 
-    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o mist_node_jni.h mistNode.MistNode
+    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o mist_node_jni.h mist.node.MistNode
 
     ...and...
 
-    javah -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o wish_app_jni.h wishApp.WishApp
+    javah -classpath ../../../../MistApi/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar -o wish_app_jni.h wish.WishApp
 
  To see a Java object's method signatures, use:
-    javap -s -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar mistNode.MistNode
+    javap -s -classpath ../../../../MistNode/build/intermediates/classes/debug/:/home/jan/Android/Sdk/platforms/android-16/android.jar mist.node.MistNode
 
 */
 #include "mist_node_jni.h"
@@ -1055,6 +1055,7 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_requestCancel(JNIEnv *env, jobjec
     else {
 
         mist_app_cancel(get_mist_model()->mist_app, req);
+        /* FIXME: Should clean up the JNI request list also. */
     }
 
     monitor_exit();
@@ -1115,6 +1116,7 @@ JNIEXPORT void JNICALL Java_wish_WishApp_requestCancel(JNIEnv *env, jobject java
     }
     else {
         wish_app_cancel(app, req);
+        /* FIXME: Should clean up the JNI request list also. */
     }
 
     monitor_exit();
