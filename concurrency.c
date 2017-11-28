@@ -19,6 +19,12 @@ void monitor_init(JavaVM *vm, jobject monitor_obj_global_ref) {
  Returns 0 for a successful gaining of the monitor, or -1 for an error.
  */
 int monitor_enter(void) {
+    if (java_vm == NULL) {
+        android_wish_printf("Method invocation failure, java_vm is null");
+        return -1;
+    }
+    
+    
     JNIEnv * my_env = NULL;
     bool did_attach = false;
     if (getJNIEnv(java_vm, &my_env, &did_attach)) {

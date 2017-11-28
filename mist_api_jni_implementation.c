@@ -56,7 +56,10 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_startMistApi(JNIEnv *env, jobject j
     monitor_init(javaVM, node_global_ref);
     setMistNodeInstance(node_global_ref);
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return mist_api_MistApi_MIST_API_ERROR_UNSPECIFIED;
+    }
 
     /* Register a refence to the JVM */
 
@@ -96,7 +99,10 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
     bson_visit("Mist Api generic_callback payload", payload);
 
     /* Enter Critical section */
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    };
 
     JavaVM *javaVM = addon_get_java_vm();
 
@@ -233,6 +239,10 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
 
             return;
         }
+        /* FIXME: Should we release the monitor here, and re-acquire it after returning from the cb method?
+         * Currently there should be no need, as the execution is serial due to WishBridge enqueuing execution of receive_core_to_app on the App's main thread. 
+         * This applies to err and sig CBs also.
+         * On the otherhand, if we release the monitor here, then we might improve the responsivess of the program..? */
         (*my_env)->CallVoidMethod(my_env, cb_obj, ackMethodId, java_data);
     } else if (is_sig) {
         /* Invoke "sig" method */
@@ -374,7 +384,10 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_request(JNIEnv *env, jobject jthis,
         return 0;
     }
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return 0;
+    }
 
     size_t req_buf_length = 0;
     uint8_t *req_buf = 0;
@@ -439,10 +452,28 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_request(JNIEnv *env, jobject jthis,
  */
 JNIEXPORT void JNICALL Java_mist_api_MistApi_requestCancel(JNIEnv *env, jobject jthis, jint id) {
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     mist_api_request_cancel(mist_api, id);
-    /* FIXME: Should clean up the JNI request list also. */
+    
+    struct callback_list_elem *elem = NULL;
+    struct callback_list_elem *tmp = NULL;
+    
+    LL_FOREACH_SAFE(cb_list_head, elem, tmp) {
+        if (elem->id == id) {
+            LL_DELETE(cb_list_head, elem);
+            
+            /* Delete the global ref for cb object*/
+            if (elem->cb_obj != NULL) {
+                (*env)->DeleteGlobalRef(env, elem->cb_obj);
+            }
+            /* Free the memory for list element */
+            free(elem);
+        }
+    }
 
     monitor_exit();
 }
@@ -461,7 +492,10 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
     }
 
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return 0;
+    }
 
     size_t req_buf_length = 0;
     uint8_t *req_buf = 0;
@@ -559,12 +593,30 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
  * Signature: ([BI)I
  */
 JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env, jobject jthis, jbyteArray sandbox, jint id) {
-
-    monitor_enter();
+    
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     sandboxed_api_request_cancel(mist_api, sandbox, id);
-    /* FIXME: Should clean up the JNI request list also. */
-
+    
+    struct callback_list_elem *elem = NULL;
+    struct callback_list_elem *tmp = NULL;
+    
+    LL_FOREACH_SAFE(cb_list_head, elem, tmp) {
+        if (elem->id == id) {
+            LL_DELETE(cb_list_head, elem);
+            
+            /* Delete the global ref for cb object*/
+            if (elem->cb_obj != NULL) {
+                (*env)->DeleteGlobalRef(env, elem->cb_obj);
+            }
+            /* Free the memory for list element */
+            free(elem);
+        }
+    }
+ 
     monitor_exit();
 }
 

@@ -338,7 +338,10 @@ JNIEXPORT jint JNICALL Java_mist_node_MistNode_startMistApp(JNIEnv *env, jobject
     jobject wish_file_global_ref = (*env)->NewGlobalRef(env, java_wish_file);
     wish_file_init(wish_file_global_ref);
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return mist_node_MistNode_MIST_NODE_ERROR_UNSPECIFIED;
+    }
     char *name_str =  (char*) (*env)->GetStringUTFChars(env, java_appName, NULL);
     addon_init_mist_app(name_str);
     (*env)->ReleaseStringUTFChars(env, java_appName, name_str);
@@ -367,7 +370,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_stopMistApp(JNIEnv *env, jobject 
 JNIEXPORT void JNICALL Java_mist_node_MistNode_addEndpoint(JNIEnv *env, jobject java_this, jobject java_Endpoint) {
     android_wish_printf("in addEndpoint");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     /* Get the class corresponding to java_Endpoint instance */
     jclass endpointClass = (*env)->GetObjectClass(env, java_Endpoint);
@@ -476,7 +482,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_removeEndpoint(JNIEnv *env, jobje
 JNIEXPORT void JNICALL Java_mist_node_MistNode_readResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jbyteArray java_data) {
     android_wish_printf("in readResponse");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     if (java_data == NULL) {
         android_wish_printf("in readResponse: java_data is NULL");
@@ -515,7 +524,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_readResponse(JNIEnv *env, jobject
 JNIEXPORT void JNICALL Java_mist_node_MistNode_readError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
     android_wish_printf("in readError");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     char *epid_str =  (char*) (*env)->GetStringUTFChars(env, java_epid, NULL);
     char *msg_str = (char*) (*env)->GetStringUTFChars(env, java_msg, NULL);
@@ -536,7 +548,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_readError(JNIEnv *env, jobject ja
 JNIEXPORT void JNICALL Java_mist_node_MistNode_writeResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id) {
     android_wish_printf("in writeResponse");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     if (java_epid == NULL) {
         android_wish_printf("in writeResponse: java_epid is NULL");
@@ -559,7 +574,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_writeResponse(JNIEnv *env, jobjec
 JNIEXPORT void JNICALL Java_mist_node_MistNode_writeError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
     android_wish_printf("in writeError");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     if (java_epid == NULL) {
         android_wish_printf("in writeError: java_epid is NULL");
@@ -584,7 +602,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_writeError(JNIEnv *env, jobject j
 JNIEXPORT void JNICALL Java_mist_node_MistNode_invokeResponse(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jbyteArray java_data) {
     android_wish_printf("in invokeResponse");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     if (java_data == NULL) {
         android_wish_printf("in invokeResponse: java_data is NULL");
@@ -629,7 +650,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_invokeResponse(JNIEnv *env, jobje
 JNIEXPORT void JNICALL Java_mist_node_MistNode_invokeError(JNIEnv *env, jobject java_this, jstring java_epid, jint request_id, jint code, jstring java_msg) {
     android_wish_printf("in invokeError");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     if (java_epid == NULL) {
         android_wish_printf("in invokeError: java_epid is NULL");
@@ -654,7 +678,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_invokeError(JNIEnv *env, jobject 
 JNIEXPORT void JNICALL Java_mist_node_MistNode_changed(JNIEnv *env, jobject java_this, jstring java_epid) {
     android_wish_printf("in changed");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     if (java_epid == NULL) {
         android_wish_printf("in changed: java_epid is NULL");
@@ -694,7 +721,10 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
     android_wish_printf("in Mist Node generic_callback");
     /* Enter Critical section to protect the cb lists from concurrent modification. */
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     wish_app_t *app = addon_get_wish_app();
 
@@ -863,6 +893,9 @@ static void generic_callback(rpc_client_req *req, void *ctx, const uint8_t *payl
 
             return;
         }
+        /* FIXME: Should we release the monitor here, and re-acquire it after returning from the cb method?
+         Currently there should be no need, as the execution is serial due to WishBridge enqueuing execution of receive_core_to_app on the App's main thread. 
+         This applies to err and sig CBs also. */
         (*my_env)->CallVoidMethod(my_env, cb_obj, ackMethodId, java_data);
     } else if (is_sig) {
         /* Invoke "sig" method of MistNode.RequestCb:
@@ -991,7 +1024,10 @@ static bool save_request(JNIEnv *env, struct callback_list_elem **cb_list_head, 
 JNIEXPORT jint JNICALL Java_mist_node_MistNode_request(JNIEnv *env, jobject java_this, jbyteArray java_peer, jbyteArray java_req, jobject callback_obj) {
     android_wish_printf("in MistNode request");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return 0;
+    }
 
     /* Unmarshall the java_peer and java_req to normal arrays of bytes */
     size_t peer_bson_len = (*env)->GetArrayLength(env, java_peer);
@@ -1045,7 +1081,10 @@ JNIEXPORT jint JNICALL Java_mist_node_MistNode_request(JNIEnv *env, jobject java
 JNIEXPORT void JNICALL Java_mist_node_MistNode_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
     android_wish_printf("in MistNode requestCancel");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     rpc_client_req *req = rpc_client_find_req(&get_mist_model()->mist_app->protocol.rpc_client, request_id);
 
@@ -1056,6 +1095,24 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_requestCancel(JNIEnv *env, jobjec
 
         mist_app_cancel(get_mist_model()->mist_app, req);
         /* FIXME: Should clean up the JNI request list also. */
+        
+        struct callback_list_elem *elem = NULL;
+        struct callback_list_elem *tmp = NULL;
+
+        LL_FOREACH_SAFE(mist_cb_list_head, elem, tmp) {
+            if (elem->request_id == request_id) {
+                /* Delete the elemen from list */
+                LL_DELETE(mist_cb_list_head, elem);
+
+                /* Delete the global ref for cb object*/
+                if (elem->cb_obj != NULL) {
+                    (*env)->DeleteGlobalRef(env, elem->cb_obj);
+                }
+                /* Free the memory for list element */
+                free(elem);
+            }
+        }
+        
     }
 
     monitor_exit();
@@ -1070,7 +1127,10 @@ JNIEXPORT void JNICALL Java_mist_node_MistNode_requestCancel(JNIEnv *env, jobjec
 JNIEXPORT jint JNICALL Java_wish_WishApp_request(JNIEnv *env, jobject java_this, jbyteArray java_req, jobject callback_obj) {
     android_wish_printf("in WishApp request");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return 0;
+    }
 
     wish_app_t *app = addon_get_wish_app();
 
@@ -1105,7 +1165,10 @@ JNIEXPORT jint JNICALL Java_wish_WishApp_request(JNIEnv *env, jobject java_this,
 JNIEXPORT void JNICALL Java_wish_WishApp_requestCancel(JNIEnv *env, jobject java_this, jint request_id) {
     android_wish_printf("in WishApp requestCancel");
 
-    monitor_enter();
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
 
     wish_app_t *app = addon_get_wish_app();
 
@@ -1116,7 +1179,25 @@ JNIEXPORT void JNICALL Java_wish_WishApp_requestCancel(JNIEnv *env, jobject java
     }
     else {
         wish_app_cancel(app, req);
-        /* FIXME: Should clean up the JNI request list also. */
+        
+        /* Clean up the JNI request list also. */
+        
+        struct callback_list_elem *elem = NULL;
+        struct callback_list_elem *tmp = NULL;
+
+        LL_FOREACH_SAFE(wish_cb_list_head, elem, tmp) {
+            if (elem->request_id == request_id) {
+                LL_DELETE(wish_cb_list_head, elem);
+
+                /* Delete the global ref for cb object*/
+                if (elem->cb_obj != NULL) {
+                    (*env)->DeleteGlobalRef(env, elem->cb_obj);
+                }
+                /* Free the memory for list element */
+                free(elem);
+            }
+        }
+        
     }
 
     monitor_exit();
