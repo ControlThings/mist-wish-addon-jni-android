@@ -51,7 +51,7 @@ JNIEXPORT void JNICALL Java_wish_WishApp_requestCancel
  * Signature: (Ljava/lang/String;[B)V
  */
 JNIEXPORT void JNICALL Java_wish_WishApp_bsonConsolePrettyPrinter
-  (JNIEnv *, jclass, jstring, jbyteArray);
+  (JNIEnv *, jobject, jstring, jbyteArray);
 
 #ifdef __cplusplus
 }

@@ -40,7 +40,7 @@ JNIEXPORT jint JNICALL Java_wish_WishApp_startWishApp(JNIEnv *env, jobject java_
  * Method:    bsonConsolePrettyPrinter
  * Signature: (Ljava/lang/String;[B)V
  */
-JNIEXPORT void JNICALL Java_wishApp_WishApp_bsonConsolePrettyPrinter(JNIEnv *env, jclass java_this, jstring java_log_tag, jbyteArray java_bson) {
+JNIEXPORT void JNICALL Java_wish_WishApp_bsonConsolePrettyPrinter(JNIEnv *env, jobject java_this, jstring java_log_tag, jbyteArray java_bson) {
     char *log_tag =  (char*) (*env)->GetStringUTFChars(env, java_log_tag, NULL);
     uint8_t *bson_doc = NULL;
     if (java_bson != NULL) {
