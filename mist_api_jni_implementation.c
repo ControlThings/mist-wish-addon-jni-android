@@ -420,8 +420,23 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_request(JNIEnv *env, jobject jthis,
 
     int id = next_id;
 
+    /* In-place the id (which should be 0) with the id we have assigned */
+    bson_iterator it;
+    if (BSON_INT != bson_find_from_buffer(&it, req_buf, "id")) {
+        WISHDEBUG(LOG_CRITICAL, "Failed to find request id in buffer");
+
+        monitor_exit();
+
+        return 0;
+    }
+
+    bson_inplace_set_long(&it, id);
+
     bson bs;
     bson_init_with_data(&bs, req_buf);
+
+    /* Save the request callback object and id */
+
     if (save_request_cb(env, jthis, &bs, java_callback, id) == false) {
         WISHDEBUG(LOG_CRITICAL, "Failed to create Mist request");
 
@@ -528,8 +543,23 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
 
     int id = next_id;
 
+    /* In-place the id (which should be 0) with the id we have assigned */
+
+    bson_iterator it;
+    if (BSON_INT != bson_find_from_buffer(&it, req_buf, "id")) {
+        WISHDEBUG(LOG_CRITICAL, "Failed to find request id in buffer");
+
+        monitor_exit();
+
+        return 0;
+    }
+
+    bson_inplace_set_long(&it, id);
+
     bson bs;
     bson_init_with_data(&bs, req_buf);
+
+    /* Save the request callback object and id */
 
     if (save_request_cb(env, jthis, &bs, java_callback, id) == false) {
         WISHDEBUG(LOG_CRITICAL, "Failed to create Mist request");
@@ -593,7 +623,7 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
  * Signature: ([BI)I
  */
 JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env, jobject jthis, jbyteArray sandbox, jint id) {
-    
+    WISHDEBUG(LOG_CRITICAL, "in sandboxedRequestCancel JNI");
     if (monitor_enter() != 0) {
         android_wish_printf("Could not lock monitor");
         return;
