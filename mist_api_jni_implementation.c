@@ -95,7 +95,7 @@ struct callback_list_elem *cb_list_head = NULL;
  * This call-back method is invoked both for Mist and Wish RPC requests. It will call methods of the callback object associated with the request id
  */
 static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_t *payload, size_t payload_len) {
-    WISHDEBUG(LOG_CRITICAL, "in Mist Api generic_callback");
+    WISHDEBUG(LOG_CRITICAL, "in Mist Api generic_callback, payload: %p", payload);
     bson_visit("Mist Api generic_callback payload", payload);
 
     /* Enter Critical section */
