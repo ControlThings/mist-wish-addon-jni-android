@@ -498,7 +498,7 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_requestCancel(JNIEnv *env, jobject 
  * Method:    sandboxedRequest
  * Signature: ([B[BLmistApi/MistApi/RequestCb;)I
  */
-JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobject jthis, jbyteArray sandbox, jbyteArray java_req_bson, jobject java_callback) {
+JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobject jthis, jbyteArray java_sandbox, jbyteArray java_req_bson, jobject java_callback) {
     WISHDEBUG(LOG_CRITICAL, "in sandboxedApiRequest JNI");
 
     if (mist_api == NULL) {
@@ -569,30 +569,30 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
         return 0;
     }
 
-    uint8_t* args;
+    uint8_t* sandbox_id;
 
-    if (sandbox != NULL) {
-        /* Extract the byte array containing the RPC args */
-        int args_length = (*env)->GetArrayLength(env, sandbox);
+    if (java_sandbox != NULL) {
+        /* Extract the byte array containing the sandbox id */
+        int sandbox_id_length = (*env)->GetArrayLength(env, java_sandbox);
 
-        if (args_length != 32) {
+        if (sandbox_id_length != 32) {
             /* sandbox id is not valid */
-            WISHDEBUG(LOG_CRITICAL, "Invalid sandbox id, not 32 bytes long, but %i", args_length);
+            WISHDEBUG(LOG_CRITICAL, "Invalid sandbox id, not 32 bytes long, but %i", sandbox_id_length);
 
             monitor_exit();
 
             return 0;
         }
 
-        args = (uint8_t *) calloc(args_length, 1);
-        if (args == NULL) {
+        sandbox_id = (uint8_t *) calloc(sandbox_id_length, 1);
+        if (sandbox_id == NULL) {
             android_wish_printf("Malloc fails");
 
             monitor_exit();
 
             return 0;
         }
-        (*env)->GetByteArrayRegion(env, sandbox, 0, args_length, args);
+        (*env)->GetByteArrayRegion(env, java_sandbox, 0, sandbox_id_length, sandbox_id);
     } else {
         /* java args bson is null - fill in an empty array */
         WISHDEBUG(LOG_CRITICAL, "RPC args is null!");
@@ -605,9 +605,9 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
     /* Request successful, increment the id */
     next_id++;
 
-    WISHDEBUG(LOG_CRITICAL, "Sandbox id in raw api:  %02x %02x %02x %02x", args[0], args[1], args[2], args[3]);
+    WISHDEBUG(LOG_CRITICAL, "Sandbox id in raw api:  %02x %02x %02x %02x", sandbox_id[0], sandbox_id[1], sandbox_id[2], sandbox_id[3]);
     /* Call the Mist RPC API */
-    sandboxed_api_request_context(mist_api, args, &bs, generic_callback, NULL);
+    sandboxed_api_request_context(mist_api, sandbox_id, &bs, generic_callback, NULL);
 
     /* Clean-up */
     bson_destroy(&bs);
@@ -622,14 +622,40 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest(JNIEnv *env, jobje
  * Method:    sandboxedRequestCancel
  * Signature: ([BI)I
  */
-JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env, jobject jthis, jbyteArray sandbox, jint id) {
+JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env, jobject jthis, jbyteArray java_sandbox, jint id) {
     WISHDEBUG(LOG_CRITICAL, "in sandboxedRequestCancel JNI");
     if (monitor_enter() != 0) {
         android_wish_printf("Could not lock monitor");
         return;
     }
 
-    sandboxed_api_request_cancel(mist_api, sandbox, id);
+     uint8_t* sandbox_id;
+
+    if (java_sandbox != NULL) {
+        /* Extract the byte array containing the sandbox id */
+        int sandbox_id_length = (*env)->GetArrayLength(env, java_sandbox);
+
+        if (sandbox_id_length != 32) {
+            /* sandbox id is not valid */
+            WISHDEBUG(LOG_CRITICAL, "Invalid sandbox id, not 32 bytes long, but %i", sandbox_id_length);
+
+            monitor_exit();
+
+            return;
+        }
+
+        sandbox_id = (uint8_t *) calloc(sandbox_id_length, 1);
+        if (sandbox_id == NULL) {
+            android_wish_printf("Malloc fails");
+
+            monitor_exit();
+
+            return;
+        }
+        (*env)->GetByteArrayRegion(env, java_sandbox, 0, sandbox_id_length, sandbox_id);
+    }
+
+    sandboxed_api_request_cancel(mist_api, sandbox_id, id);
     
     struct callback_list_elem *elem = NULL;
     struct callback_list_elem *tmp = NULL;
