@@ -1047,10 +1047,11 @@ JNIEXPORT jint JNICALL Java_mist_node_MistNode_request(JNIEnv *env, jobject java
     (*env)->GetByteArrayRegion(env, java_req, 0, req_bson_len, req_bson);
 
 
+    wish_protocol_peer_t peer;
     /* Resolve the BSON peer to a wish_protocol_peer: wish_protocol_peer_find_from_bson */
-    wish_protocol_peer_t *peer = wish_protocol_peer_find_from_bson(&(get_mist_model()->mist_app->protocol), peer_bson);
+    bool peer_resolve_success = wish_protocol_peer_populate_from_bson(&peer, peer_bson);
 
-    if (peer == NULL) {
+    if (!peer_resolve_success) {
         android_wish_printf("Could not find peer for request!");
         return 0;
     }
@@ -1058,7 +1059,7 @@ JNIEXPORT jint JNICALL Java_mist_node_MistNode_request(JNIEnv *env, jobject java
     bson req_bs;
     bson_init_with_data(&req_bs, req_bson);
     /* Send down the request, with our generic_cb callback, save the request id. */
-    rpc_client_req *req = mist_app_request(get_mist_model()->mist_app, peer, &req_bs, generic_callback);
+    rpc_client_req *req = mist_app_request(get_mist_model()->mist_app, &peer, &req_bs, generic_callback);
 
     int request_id = req->id;
     /* Save the mapping request_id -> callback object */
