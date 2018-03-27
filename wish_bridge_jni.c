@@ -180,6 +180,7 @@ JNIEXPORT void JNICALL Java_addon_WishBridgeJni_receive_1core_1to_1app(JNIEnv *e
     wish_app_t *dst_app = wish_app_find_by_wsid(my_wsid);
     if (dst_app != NULL) {
         android_wish_printf("Found app by wsid");
+        //log_bson_visit_inner(data, 0, "core_to_app");
         wish_app_determine_handler(dst_app, data, data_length);
     }
     else {
