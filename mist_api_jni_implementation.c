@@ -218,7 +218,7 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
         uint8_t *data_doc = (uint8_t *) bson_data(&bs);
         size_t data_doc_len = bson_size(&bs);
 
-        java_data = (*my_env)->NewByteArray(my_env, data_doc_len);
+        java_data = (*my_env)->NewByteArray(my_env, payload_len);
         if (java_data == NULL) {
             WISHDEBUG(LOG_CRITICAL, "Failed creating java buffer for ack or sig data");
 
@@ -226,7 +226,7 @@ static void generic_callback(struct wish_rpc_entry* req, void *ctx, const uint8_
 
             return;
         }
-        (*my_env)->SetByteArrayRegion(my_env, java_data, 0, data_doc_len, (const jbyte *) data_doc);
+        (*my_env)->SetByteArrayRegion(my_env, java_data, 0, payload_len, (const jbyte *) payload);
     }
 
     if (is_ack) {
