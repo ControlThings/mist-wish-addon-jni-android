@@ -23,10 +23,10 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_startMistApi
 
 /*
  * Class:     mist_api_MistApi
- * Method:    stopMistApi
+ * Method:    nativeStopMistApi
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_mist_api_MistApi_stopMistApi
+JNIEXPORT void JNICALL Java_mist_api_MistApi_nativeStopMistApi
   (JNIEnv *, jobject);
 
 /*
@@ -61,6 +61,14 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_sandboxedRequest
 JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel
   (JNIEnv *, jobject, jbyteArray, jint);
 
+/*
+ * Class:     mist_api_MistApi
+ * Method:    wifiJoinResultCb
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_mist_api_MistApi_wifiJoinResultCb
+  (JNIEnv *, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif
@@ -69,6 +77,17 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel
 
 #ifndef _Included_mist_api_MistApi_RequestCb
 #define _Included_mist_api_MistApi_RequestCb
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+#endif
+/* Header for class mist_api_MistApi_Error */
+
+#ifndef _Included_mist_api_MistApi_Error
+#define _Included_mist_api_MistApi_Error
 #ifdef __cplusplus
 extern "C" {
 #endif

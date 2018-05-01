@@ -8,6 +8,7 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "mist_api_jni.h"
 #include "jni_utils.h"
@@ -27,6 +28,8 @@
 #include "concurrency.h"
 #include "mist_node_api_helper.h"
 #include "addon.h"
+
+#include "mist_port.h"
 
 static mist_api_t* mist_api;
 
@@ -76,6 +79,17 @@ JNIEXPORT jint JNICALL Java_mist_api_MistApi_startMistApi(JNIEnv *env, jobject j
     return mist_api_MistApi_MIST_API_SUCCESS;
 }
 
+
+/*
+ * Class:     mist_api_MistApi
+ * Method:    nativeStopMistApi
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_mist_api_MistApi_nativeStopMistApi
+  (JNIEnv *env, jobject jthis) {
+    android_wish_printf("in jni nativeStopMistApi");
+
+}
 
 
 /** Linked list element of Mist API RPC requests sent by us. It is used to keep track of callback objects and RPC ids. */
@@ -676,3 +690,84 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env,
     monitor_exit();
 }
 
+#define WIFI_SSID_MAX_LEN (32)
+#define WIFI_PASSWORD_MAX_LEN (128)
+
+void mist_port_wifi_join(mist_api_t* mist_api_passed, const char *ssid, const char* password) {
+    JavaVM *javaVM = addon_get_java_vm();
+
+    bool did_attach = false;
+    JNIEnv * my_env = NULL;
+    if (getJNIEnv(javaVM, &my_env, &did_attach)) {
+        android_wish_printf("Method invocation failure, could not get JNI env");
+
+        return;
+    }
+
+    jstring java_ssid = NULL;
+    jstring java_password = NULL;
+
+    char ssid_copy[WIFI_SSID_MAX_LEN+1] = { 0 };
+    char password_copy[WIFI_PASSWORD_MAX_LEN+1] = { 0 };
+
+    if (ssid) {
+        strncpy(ssid_copy, ssid, WIFI_SSID_MAX_LEN);
+        java_ssid = (*my_env)->NewStringUTF(my_env, ssid_copy);
+    }
+
+    if (password) {
+        strncpy(password_copy, password, WIFI_PASSWORD_MAX_LEN);
+        java_ssid = (*my_env)->NewStringUTF(my_env, password_copy);
+    }
+
+    jclass mistApiClassId = (*my_env)->FindClass(my_env, "mist/api/MistApi");
+    if (mistApiClassId == NULL) {
+        android_wish_printf("Could not get MistApi class id");
+        return;
+    }
+
+    jmethodID getMistApiMethodId = (*my_env)->GetStaticMethodID(my_env, mistApiClassId, "getInstance", "()Lmist/api/MistApi;");
+    jobject mistApiInstance = NULL;
+
+    if(getMistApiMethodId == NULL) {
+        android_wish_printf("Could not get MistApi getInstance method id");
+    }
+    else {
+        mistApiInstance = (*my_env)->CallStaticObjectMethod(my_env, mistApiClassId, 0);
+    }
+
+    if (mistApiInstance == NULL) {
+        android_wish_printf("mistApiInstance is null!");
+        return;
+    }
+
+    /* Now we can finally call the join wifi method! */
+
+    jmethodID joinSsidMethodId = (*my_env)->GetMethodID(my_env, mistApiClassId, "joinWifi", "(Ljava/lang/String;Ljava/lang/String;)V");
+
+    if (joinSsidMethodId == NULL) {
+        android_wish_printf("joinSsidMethodId is null!");
+        return;
+    }
+
+    (*my_env)->CallVoidMethod(my_env, mistApiInstance, joinSsidMethodId, java_ssid, java_password);
+
+    if (did_attach) {
+        detachThread(javaVM);
+    }
+
+}
+
+
+/*
+ * Class:     mist_api_MistApi
+ * Method:    wifiJoinResultCb
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_mist_api_MistApi_wifiJoinResultCb
+  (JNIEnv *env, jobject jthis, jint result) {
+    android_wish_printf("in jni wifiJoinResultCb, result %i", result);
+
+    mist_port_wifi_join_cb(mist_api, result);
+
+ }
