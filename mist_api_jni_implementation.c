@@ -696,6 +696,7 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel(JNIEnv *env,
 void mist_port_wifi_join(mist_api_t* mist_api_passed, const char *ssid, const char* password) {
     JavaVM *javaVM = addon_get_java_vm();
 
+    android_wish_printf("in mist_port_wifi_join");
     bool did_attach = false;
     JNIEnv * my_env = NULL;
     if (getJNIEnv(javaVM, &my_env, &did_attach)) {
@@ -726,15 +727,20 @@ void mist_port_wifi_join(mist_api_t* mist_api_passed, const char *ssid, const ch
         return;
     }
 
+    android_wish_printf("in mist_port_wifi_join, mistApiClassId %p", mistApiClassId);
+
     jmethodID getMistApiMethodId = (*my_env)->GetStaticMethodID(my_env, mistApiClassId, "getInstance", "()Lmist/api/MistApi;");
     jobject mistApiInstance = NULL;
 
     if(getMistApiMethodId == NULL) {
         android_wish_printf("Could not get MistApi getInstance method id");
+        return;
     }
     else {
-        mistApiInstance = (*my_env)->CallStaticObjectMethod(my_env, mistApiClassId, 0);
+        android_wish_printf("in mist_port_wifi_join, getMistApiMethodId %p", getMistApiMethodId);
+        mistApiInstance = (*my_env)->CallStaticObjectMethod(my_env, mistApiClassId, getMistApiMethodId);
     }
+
 
     if (mistApiInstance == NULL) {
         android_wish_printf("mistApiInstance is null!");
@@ -744,6 +750,7 @@ void mist_port_wifi_join(mist_api_t* mist_api_passed, const char *ssid, const ch
     /* Now we can finally call the join wifi method! */
 
     jmethodID joinSsidMethodId = (*my_env)->GetMethodID(my_env, mistApiClassId, "joinWifi", "(Ljava/lang/String;Ljava/lang/String;)V");
+    android_wish_printf("in mist_port_wifi_join, joinSsidMethodId %p", joinSsidMethodId);
 
     if (joinSsidMethodId == NULL) {
         android_wish_printf("joinSsidMethodId is null!");
