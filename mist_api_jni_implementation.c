@@ -718,7 +718,7 @@ void mist_port_wifi_join(mist_api_t* mist_api_passed, const char *ssid, const ch
 
     if (password) {
         strncpy(password_copy, password, WIFI_PASSWORD_MAX_LEN);
-        java_ssid = (*my_env)->NewStringUTF(my_env, password_copy);
+        java_password = (*my_env)->NewStringUTF(my_env, password_copy);
     }
 
     jclass mistApiClassId = (*my_env)->FindClass(my_env, "mist/api/MistApi");
