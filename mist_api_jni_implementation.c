@@ -775,6 +775,23 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_wifiJoinResultCb
   (JNIEnv *env, jobject jthis, jint result) {
     android_wish_printf("in jni wifiJoinResultCb, result %i", result);
 
+    if (monitor_enter() != 0) {
+        android_wish_printf("Could not lock monitor");
+        return;
+    }
+
     mist_port_wifi_join_cb(mist_api, result);
 
+    monitor_exit();
+ }
+
+ JNIEXPORT void JNICALL Java_mist_api_MistApi_signalWishAppPeriodicTick(JNIEnv *env, jobject jthis) {
+    if (monitor_enter() != 0) {
+     android_wish_printf("Could not lock monitor");
+     return;
+    }
+
+    wish_app_periodic(mist_api->wish_app);
+
+    monitor_exit();
  }

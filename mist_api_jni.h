@@ -69,6 +69,14 @@ JNIEXPORT void JNICALL Java_mist_api_MistApi_sandboxedRequestCancel
 JNIEXPORT void JNICALL Java_mist_api_MistApi_wifiJoinResultCb
   (JNIEnv *, jobject, jint);
 
+/*
+ * Class:     mist_api_MistApi
+ * Method:    signalWishAppPeriodicTick
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_mist_api_MistApi_signalWishAppPeriodicTick
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
